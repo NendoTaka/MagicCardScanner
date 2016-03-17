@@ -1,5 +1,5 @@
 PImage card;
-String[] cardList = {"Ajani_Vengeant.jpg", "Bahamut.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg"};
+String[] cardList = {"Ajani_Vengeant.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg"};
 
 void setup() {
   size(500, 500);
