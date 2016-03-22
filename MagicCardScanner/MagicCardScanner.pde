@@ -6,6 +6,7 @@ void setup() {
   surface.setResizable(true);
   card = loadImage(cardList[0]);
   surface.setSize(card.width, card.height);
+  print(cardList[0]);
 }
 
 void draw() {
