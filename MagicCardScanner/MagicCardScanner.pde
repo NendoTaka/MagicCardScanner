@@ -1,3 +1,7 @@
+/*
+Click and drag to select card. Click c to crop.
+*/
+
 PImage card;
 String[] cardList = {"Ajani_Vengeant.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg"};
 int startx = 0, starty = 0, endx = 0, endy = 0;
@@ -14,7 +18,7 @@ void draw() {
   stroke(255, 0, 0);
   noFill();
   if (mousePressed) {
-    rect(startx, starty, mouseX, mouseY);
+    rect(startx, starty, mouseX-startx, mouseY-starty);
   }
 }
 
