@@ -2,7 +2,7 @@
 Click and drag to select card. Click c to crop.
 */
 
-PImage card, borderCard, noBorder, display, centerPic, textBox, type, setSym, name, cost;
+PImage card, borderCard, noBorder, display, centerPic, textBox, type, setSym, name, cost, damage;
 String[] cardList = {"Ajani_Vengeant.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg"};
 int startx = 0, starty = 0, endx = 0, endy = 0;
 
@@ -13,13 +13,7 @@ void setup() {
   display = card;
   surface.setSize(display.width, display.height);
   borderCard = card.copy();
-  noBorder = cropCard(borderCard, int(borderCard.width*0.05), int(borderCard.width*0.05), int(borderCard.width*0.95), int(borderCard.height-(borderCard.width*0.05)));
-  centerPic = cropCard(borderCard, int(borderCard.width*0.08), int(2*borderCard.width*0.085), int(borderCard.width-borderCard.width*0.08), int(borderCard.height/2 + borderCard.width*0.075));
-  textBox = cropCard(borderCard, int(borderCard.width*0.072), int(borderCard.height*0.626), int(borderCard.width*0.92), int(borderCard.height*0.91));
-  type = cropCard(borderCard, int(borderCard.width*0.08),int(borderCard.height*0.56),int(borderCard.width*0.8),int(borderCard.height*0.626));
-  setSym = cropCard(borderCard, int(borderCard.width*0.8),int(borderCard.height*0.56),int(borderCard.width*0.92),int(borderCard.height*0.626));
-  name = cropCard(borderCard, int(borderCard.width*0.08),int(borderCard.height*0.05),int(borderCard.width*0.7),int(borderCard.height*0.11));
-  cost = cropCard(borderCard, int(borderCard.width*0.7),int(borderCard.height*0.05),int(borderCard.width*0.92),int(borderCard.height*0.11));
+  cropAll(borderCard);
 }
 
 void draw() {
@@ -30,6 +24,19 @@ void draw() {
   if (mousePressed) {
     rect(startx, starty, mouseX-startx, mouseY-starty);
   }
+}
+
+void cropAll(PImage cropSource){
+  int wide = cropSource.width;
+  int tall = cropSource.height;
+  noBorder = cropCard(cropSource, int(wide*0.05), int(wide*0.05), int(wide*0.95), int(tall-(wide*0.05)));
+  centerPic = cropCard(cropSource, int(wide*0.08), int(2*wide*0.085), int(wide-wide*0.08), int(tall/2 + wide*0.075));
+  textBox = cropCard(cropSource, int(wide*0.072), int(tall*0.626), int(wide*0.92), int(tall*0.91));
+  type = cropCard(cropSource, int(wide*0.08),int(tall*0.56),int(wide*0.8),int(tall*0.626));
+  setSym = cropCard(cropSource, int(wide*0.8),int(tall*0.56),int(wide*0.92),int(tall*0.626));
+  name = cropCard(cropSource, int(wide*0.08),int(tall*0.05),int(wide*0.7),int(tall*0.11));
+  cost = cropCard(cropSource, int(wide*0.7),int(tall*0.05),int(wide*0.92),int(tall*0.11));
+  damage = cropCard(cropSource, int(wide*0.74), int(tall*0.89), int(wide*0.93), int(tall*0.95));
 }
 
 PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
@@ -58,8 +65,7 @@ void mouseReleased(){
 void keyPressed(){
   if (key == 'c'){
     borderCard = cropCard(card, startx, starty, endx, endy);
-    noBorder = cropCard(borderCard, int(borderCard.width*0.05), int(borderCard.width*0.05), int(borderCard.width*0.95), int(borderCard.height-(borderCard.width*0.05)));
-    centerPic = cropCard(borderCard, int(borderCard.width*0.08), int(2*borderCard.width*0.075), int(borderCard.width-borderCard.width*0.075), int(borderCard.height/2 + borderCard.width*0.075));
+    cropAll(borderCard);
     display = borderCard;
   }
   if (key == '1'){
@@ -88,5 +94,8 @@ void keyPressed(){
   }
   if (key == '9'){
     display = cost;
+  }
+  if (key == '0'){
+    display = damage;
   }
 }
