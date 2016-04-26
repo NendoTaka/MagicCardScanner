@@ -36,49 +36,43 @@ void takeData(PImage imgSource, int n, int m){
   int yDiff = imgSource.height / m; // height of each box
   for (int x = 0; x < n; x++){ // for each box wide
     for (int y = 0; y < m; y++){ // for each box tall
-      print(findColorValues(imgSource, x * xDiff, y * yDiff, (x+1) * xDiff, (y+1) * yDiff)[0]);
+      print(findColorValues(imgSource, x * xDiff, y * yDiff, (x+1) * xDiff, (y+1) * yDiff)[3]);
+      print(':');
     }
   }
 }
 
 //Used to find the average and median values
+// format of output (so far):
+// [0] = avg red
+// [1] = avg green
+// [2] = avg blue
+// [3] = median red
+// [4] = median green
+// [5] = median blue
 float[] findColorValues(PImage img, int startX, int startY, int endX, int endY){
-  // format of output (so far):
-  // [0] = avg red
-  // [1] = avg green
-  // [2] = avg blue
-  // [3] = median red
-  // [4] = median green
-  // [5] = median blue
-  
   color currentColor;
   float[] redValues = new float[(endX - startX) * (endY - startY)];
   float[] greenValues = new float[(endX - startX) * (endY - startY)];
   float[] blueValues = new float[(endX - startX) * (endY - startY)];
-  float sumRed = 0;
-  float sumGreen = 0;
-  float sumBlue = 0;
+  float sumRed = 0, sumGreen = 0, sumBlue = 0;
+  float medianRed, medianGreen, medianBlue;
+  float averageRed, averageGreen, averageBlue;
+  
   for(int y = startY; y < endY; y++){
     for(int x = startX; x < endX; x++){
       currentColor = img.get(x, y);
       
-      redValues[(x-startX)*((y-startY)+1)] = red(currentColor);
+      redValues[(endX-startX)*(y-startY)+(x-startX)] = red(currentColor);
       sumRed += red(currentColor);
       
-      greenValues[(x-startX)*((y-startY)+1)] = green(currentColor);
+      greenValues[(endX-startX)*(y-startY)+(x-startX)] = green(currentColor);
       sumGreen += green(currentColor);
       
-      blueValues[(x-startX)*((y-startY)+1)] = blue(currentColor);
+      blueValues[(endX-startX)*(y-startY)+(x-startX)] = blue(currentColor);
       sumBlue += blue(currentColor);
     }
   }
-  
-  float medianRed;
-  float medianGreen;
-  float medianBlue;
-  float averageRed;
-  float averageGreen;
-  float averageBlue;
   
   redValues = sort(redValues);
   greenValues = sort(greenValues);
@@ -95,11 +89,11 @@ float[] findColorValues(PImage img, int startX, int startY, int endX, int endY){
     medianBlue = blueValues[int(blueValues.length/2)];
   }
   
-  averageRed = sumBlue / redValues.length;
+  averageRed = sumRed / redValues.length;
   averageGreen = sumGreen / greenValues.length;
   averageBlue = sumBlue / blueValues.length;
   
-  float[] result = {medianRed, medianGreen, medianBlue, averageRed, averageGreen, averageBlue};
+  float[] result = {averageRed, averageGreen, averageBlue, medianRed, medianGreen, medianBlue};
   
   return result;
 }
