@@ -31,15 +31,19 @@ void draw() {
 }
 
 //Splits image into sections and calls functions to measure values
-void takeData(PImage imgSource, int n, int m){
+float[] takeData(PImage imgSource, int n, int m){
   int xDiff = imgSource.width / n; // width of each box
   int yDiff = imgSource.height / m; // height of each box
+  float[] result = new float[n * m * 6]; // result array 6 = size of returned array from findColorValues
+  int loopCount = 0; // loop counter
   for (int x = 0; x < n; x++){ // for each box wide
     for (int y = 0; y < m; y++){ // for each box tall
-      print(findColorValues(imgSource, x * xDiff, y * yDiff, (x+1) * xDiff, (y+1) * yDiff)[3]);
-      print(':');
+      float[] currData = findColorValues(imgSource, x * xDiff, y * yDiff, (x+1) * xDiff, (y+1) * yDiff);
+      System.arraycopy(currData, 0, result, loopCount * currData.length, currData.length);
+      loopCount += 1;
     }
   }
+  return result;
 }
 
 //Used to find the average and median values
@@ -59,36 +63,42 @@ float[] findColorValues(PImage img, int startX, int startY, int endX, int endY){
   float medianRed, medianGreen, medianBlue;
   float averageRed, averageGreen, averageBlue;
   
+  // loop to calculate average and median
   for(int y = startY; y < endY; y++){
     for(int x = startX; x < endX; x++){
-      currentColor = img.get(x, y);
+      currentColor = img.get(x, y); // color at x, y
       
-      redValues[(endX-startX)*(y-startY)+(x-startX)] = red(currentColor);
-      sumRed += red(currentColor);
+      // red
+      redValues[(endX-startX)*(y-startY)+(x-startX)] = red(currentColor); // median
+      sumRed += red(currentColor); // average
       
-      greenValues[(endX-startX)*(y-startY)+(x-startX)] = green(currentColor);
-      sumGreen += green(currentColor);
+      greenValues[(endX-startX)*(y-startY)+(x-startX)] = green(currentColor); // median
+      sumGreen += green(currentColor); // average
       
-      blueValues[(endX-startX)*(y-startY)+(x-startX)] = blue(currentColor);
-      sumBlue += blue(currentColor);
+      blueValues[(endX-startX)*(y-startY)+(x-startX)] = blue(currentColor); // median
+      sumBlue += blue(currentColor); // average
     }
   }
   
+  // sort arrays of color values for medain
   redValues = sort(redValues);
   greenValues = sort(greenValues);
   blueValues = sort(blueValues);
   
+  // even number of colors median
   if(redValues.length % 2 == 0){
     medianRed = (redValues[int(redValues.length/2)] +  redValues[int(redValues.length/2 - 1)]) / 2;
     medianGreen = (greenValues[int(greenValues.length/2)] +  greenValues[int(greenValues.length/2 - 1)]) / 2;
     medianBlue = (blueValues[int(blueValues.length/2)] +  blueValues[int(blueValues.length/2 - 1)]) / 2;
   }
+  // odd number of colors median
   else{
     medianRed = redValues[int(redValues.length/2)];
     medianGreen = greenValues[int(greenValues.length/2)];
     medianBlue = blueValues[int(blueValues.length/2)];
   }
   
+  // average colors
   averageRed = sumRed / redValues.length;
   averageGreen = sumGreen / greenValues.length;
   averageBlue = sumBlue / blueValues.length;
@@ -154,11 +164,11 @@ void keyPressed(){
   }
   // samples the card saving the data to a file
   if (key == 's'){
-    takeData(centerPic, 3, 3);
+    float[] data = takeData(centerPic, 3, 3);
   }
   // finds the closes match to known cards
   if (key == 'f'){
-    
+    float[] data = takeData(centerPic, 3, 3);
   }
   // display the original image
   if (key == '1'){
