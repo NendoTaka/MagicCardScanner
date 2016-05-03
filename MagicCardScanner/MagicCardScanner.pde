@@ -9,6 +9,7 @@ String[] cardList = {"Ajani_Vengeant.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer
 //Ints used for cropping the image
 int startx = 0, starty = 0, endx = 0, endy = 0;
 int blackCount = 0;
+boolean cutOffmargin = false;
 
 void setup() {
   size(500, 500); // initial screen size
@@ -147,7 +148,10 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
 PImage blackPixelCount(PImage img)
 {
   int pixCount = 0;
-  img = cropCard(img, int(img.width * 0.02), int(img.height* 0.05), int(img.width* 0.98), int(img.height*0.93));
+  if(cutOffmargin == true)
+  {
+      img = cropCard(img, int(img.width * 0.02), int(img.height* 0.05), int(img.width* 0.98), int(img.height*0.93));
+  }
   float thr = avgPixel(img);
   PImage newImage = img.get();
   newImage.loadPixels();
