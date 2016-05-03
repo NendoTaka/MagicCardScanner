@@ -143,6 +143,34 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
   return cropped;
 }
 
+void compareData(float[] data, String cardName){
+  // Declare an array of floats to store results of card-to-card comparisons
+  //
+  // Reads in a 2-D array of strings: ["[cardData]", "cardName"]
+  //
+  // For every sub-array in the main array:
+  //   Converts sub-array[0] representation of array into an array of floats, called otherCard.
+  //   Calls compareCards( data, otherCard ), stores the result in the results array.
+  //
+  // Iterate through the results array, finding the index of the smallest number.
+  //
+  // the card name at 2-D_StringArray[smallset_number_index, 1] is the closest match.
+  
+}
+
+float compareCards(float[] card1, float[] card2){
+  float result = 0;
+  
+  // In the body of this function, compare the cards field by field and add the differences to result.
+  // Basically, use a for loop to do:
+  //   result += abs(card1[x] - card2[x]);
+  //
+  // Some of the indexes of the card arrays will need to be handled differently, though.
+  // More details will come when we know where those fields are, and how their differences should be measured.
+  
+  return result;
+}
+
 void mousePressed(){
   // Starts card selection
   startx = mouseX;
@@ -169,6 +197,7 @@ void keyPressed(){
   // finds the closes match to known cards
   if (key == 'f'){
     float[] data = takeData(centerPic, 3, 3);
+    compareData(data, "data/cards.txt");
   }
   // display the original image
   if (key == '1'){
