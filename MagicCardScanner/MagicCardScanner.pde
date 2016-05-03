@@ -164,7 +164,18 @@ void keyPressed(){
   }
   // samples the card saving the data to a file
   if (key == 's'){
+    String outArray = "[";
     float[] data = takeData(centerPic, 3, 3);
+    for (int x = 0; x < data.length; x++){
+      outArray += str(data[x]) + ",";
+    }
+    outArray = outArray.substring(0, outArray.length() - 1);
+    outArray += "] " + cardList[2];
+    PrintWriter output = createWriter("data/cards.txt");
+    outArray = outArray.substring(0, outArray.length() - 4);
+    output.println(outArray);
+    output.flush();
+    output.close();
   }
   // finds the closes match to known cards
   if (key == 'f'){
