@@ -8,6 +8,7 @@ PImage card, borderCard, noBorder, display, centerPic, textBox, type, setSym, na
 String[] cardList = {"Ajani_Vengeant.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg"};
 //Ints used for cropping the image
 int startx = 0, starty = 0, endx = 0, endy = 0;
+int blackCount = 0;
 
 void setup() {
   size(500, 500); // initial screen size
@@ -143,6 +144,38 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
   return cropped;
 }
 
+PImage blackPixelCount(PImage img)
+{
+  int pixCount = 0;
+  img = cropCard(img, int(img.width * 0.02), int(img.height* 0.05), int(img.width* 0.98), int(img.height*0.93));
+  float thr = avgPixel(img);
+  PImage newImage = img.get();
+  newImage.loadPixels();
+  
+  for (int i = 0; i < newImage.pixels.length; i++) {
+    float val = int(red(newImage.pixels[i]));
+    if (val > thr) val = 255;
+    else val = 0;
+    newImage.pixels[i] = color(val, val, val);
+    if(val == 0)
+    {
+     pixCount++; 
+    }
+  }
+  blackCount = pixCount;
+  return newImage;
+}
+
+float avgPixel(PImage img)
+{
+  float total = 0;
+  for (int i = 0; i < img.pixels.length; i++) {
+    total += red(img.pixels[i]);
+  }
+  float avg = total/img.pixels.length;
+  return avg;
+}
+
 void mousePressed(){
   // Starts card selection
   startx = mouseX;
@@ -169,6 +202,15 @@ void keyPressed(){
   // finds the closes match to known cards
   if (key == 'f'){
     float[] data = takeData(centerPic, 3, 3);
+  }
+  // gets black pixel count by cropping a percentage border around the img passed in, converting the 
+  // img to black and white and counting the number of black pixels. This will display the black and white image
+  // and set the black pixel count to blackCount. Do NOT press the button more than once on an img or else the img
+  // will be cropped smaller
+  if (key =='b')
+  {
+     display = blackPixelCount(display);
+     println(blackCount);
   }
   // display the original image
   if (key == '1'){
