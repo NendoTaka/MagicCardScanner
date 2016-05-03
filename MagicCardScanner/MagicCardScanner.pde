@@ -80,7 +80,7 @@ float[] findColorValues(PImage img, int startX, int startY, int endX, int endY){
     }
   }
   
-  // sort arrays of color values for medain
+  // sort arrays of color values for median
   redValues = sort(redValues);
   greenValues = sort(greenValues);
   blueValues = sort(blueValues);
@@ -143,6 +143,12 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
   return cropped;
 }
 
+//reading info from text file
+void readText(){
+  String[] data=loadStrings("cards.txt");
+  printArray(data);
+}
+
 void mousePressed(){
   // Starts card selection
   startx = mouseX;
@@ -169,6 +175,7 @@ void keyPressed(){
   // finds the closes match to known cards
   if (key == 'f'){
     float[] data = takeData(centerPic, 3, 3);
+    readText();
   }
   // display the original image
   if (key == '1'){
