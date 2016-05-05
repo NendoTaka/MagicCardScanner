@@ -143,6 +143,26 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
   return cropped;
 }
 
+//Samples the card and appends the data to cards.txt
+void cardSample(){
+  // gets the card data
+  float[] data = takeData(centerPic, 3, 3);
+  String outArray = "["; // initialize output string
+  for (int x = 0; x < data.length; x++){
+    outArray += str(data[x]) + ","; // append array data to output string
+  }
+  outArray = outArray.substring(0, outArray.length() - 1); // removes the last comma
+  outArray += "] " + cardList[2]; // adds the card name
+  outArray = outArray.substring(0, outArray.length() - 4); // removes the extension
+  // opens and reads the current contents of cards.txt
+  String lines[] = loadStrings("cards.txt");
+  // appends the output string to the current contents
+  lines = append(lines, outArray);
+  printArray(lines);
+  //saves the strings to the file
+  saveStrings("data/cards.txt", lines);
+}
+
 void mousePressed(){
   // Starts card selection
   startx = mouseX;
@@ -164,18 +184,7 @@ void keyPressed(){
   }
   // samples the card saving the data to a file
   if (key == 's'){
-    String outArray = "[";
-    float[] data = takeData(centerPic, 3, 3);
-    for (int x = 0; x < data.length; x++){
-      outArray += str(data[x]) + ",";
-    }
-    outArray = outArray.substring(0, outArray.length() - 1);
-    outArray += "] " + cardList[2];
-    PrintWriter output = createWriter("data/cards.txt");
-    outArray = outArray.substring(0, outArray.length() - 4);
-    output.println(outArray);
-    output.flush();
-    output.close();
+    cardSample();
   }
   // finds the closes match to known cards
   if (key == 'f'){
