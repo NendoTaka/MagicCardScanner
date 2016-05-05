@@ -158,7 +158,6 @@ void cardSample(){
   String lines[] = loadStrings("cards.txt");
   // appends the output string to the current contents
   lines = append(lines, outArray);
-  printArray(lines);
   //saves the strings to the file
   saveStrings("data/cards.txt", lines);
 }
