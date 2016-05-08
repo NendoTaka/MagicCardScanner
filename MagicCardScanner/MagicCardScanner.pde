@@ -144,9 +144,15 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
 }
 
 //reading info from text file
-void readText(){
+String[][] readText(){
   String[] data=loadStrings("cards.txt");
-  printArray(data);
+  String[][] result = new String[data.length][2];
+  
+  for(int i = 0; i < data.length; i++){
+    result[i] = split(data[i], " ");
+  }
+  
+  return result;
 }
 
 void mousePressed(){
