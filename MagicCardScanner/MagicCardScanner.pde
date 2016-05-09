@@ -155,6 +155,40 @@ String[][] readText(){
   return result;
 }
 
+int blackPixelCount(PImage img, boolean cutOffMargin)
+{
+  int pixCount = 0;
+  if(cutOffMargin == true)
+  {
+      img = cropCard(img, int(img.width * 0.02), int(img.height* 0.05), int(img.width* 0.98), int(img.height*0.93));
+  }
+  float thr = avgPixel(img);
+  PImage newImage = img.get();
+  newImage.loadPixels();
+  
+  for (int i = 0; i < newImage.pixels.length; i++) {
+    float val = int(red(newImage.pixels[i]));
+    if (val > thr) val = 255;
+    else val = 0;
+    newImage.pixels[i] = color(val, val, val);
+    if(val == 0)
+    {
+     pixCount++; 
+    }
+  }
+  return pixCount;
+}
+
+float avgPixel(PImage img)
+{
+  float total = 0;
+  for (int i = 0; i < img.pixels.length; i++) {
+    total += red(img.pixels[i]);
+  }
+  float avg = total/img.pixels.length;
+  return avg;
+}
+
 //Samples the card and appends the data to cards.txt
 void cardSample(){
   // gets the card data
@@ -201,6 +235,15 @@ void keyPressed(){
   if (key == 'f'){
     float[] data = takeData(centerPic, 3, 3);
     readText();
+  }
+  // gets black pixel count by cropping a percentage border around the img passed in, converting the 
+  // img to black and white and counting the number of black pixels. This will display the black and white image
+  // and set the black pixel count to blackCount. Do NOT press the button more than once on an img or else the img
+  // will be cropped smaller
+  if (key =='b')
+  {
+     int blackCount = blackPixelCount(display, false);
+     println(blackCount);
   }
   // display the original image
   if (key == '1'){
