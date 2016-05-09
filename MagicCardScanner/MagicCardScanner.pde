@@ -155,7 +155,7 @@ String[][] readText(){
   return result;
 }
 
-int blackPixelCount(PImage img, boolean cutOffMargin)
+float blackPixelCount(PImage img, boolean cutOffMargin)
 {
   int pixCount = 0;
   if(cutOffMargin == true)
@@ -176,7 +176,8 @@ int blackPixelCount(PImage img, boolean cutOffMargin)
      pixCount++; 
     }
   }
-  return pixCount;
+  float percentBlack = ((pixCount*1.0) / (img.width * img.height)) * 100;
+  return percentBlack;
 }
 
 float avgPixel(PImage img)
@@ -242,7 +243,7 @@ void keyPressed(){
   // will be cropped smaller
   if (key =='b')
   {
-     int blackCount = blackPixelCount(display, false);
+     float blackCount = blackPixelCount(display, false);
      println(blackCount);
   }
   // display the original image
