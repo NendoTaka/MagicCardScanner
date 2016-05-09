@@ -143,6 +143,7 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
   return cropped;
 }
 
+
 int blackPixelCount(PImage img, boolean cutOffMargin)
 {
   int pixCount = 0;
@@ -177,6 +178,25 @@ float avgPixel(PImage img)
   return avg;
 }
 
+//Samples the card and appends the data to cards.txt
+void cardSample(){
+  // gets the card data
+  float[] data = takeData(centerPic, 3, 3);
+  String outArray = "["; // initialize output string
+  for (int x = 0; x < data.length; x++){
+    outArray += str(data[x]) + ","; // append array data to output string
+  }
+  outArray = outArray.substring(0, outArray.length() - 1); // removes the last comma
+  outArray += "] " + cardList[2]; // adds the card name
+  outArray = outArray.substring(0, outArray.length() - 4); // removes the extension
+  // opens and reads the current contents of cards.txt
+  String lines[] = loadStrings("cards.txt");
+  // appends the output string to the current contents
+  lines = append(lines, outArray);
+  //saves the strings to the file
+  saveStrings("data/cards.txt", lines);
+}
+
 void mousePressed(){
   // Starts card selection
   startx = mouseX;
@@ -198,7 +218,7 @@ void keyPressed(){
   }
   // samples the card saving the data to a file
   if (key == 's'){
-    float[] data = takeData(centerPic, 3, 3);
+    cardSample();
   }
   // finds the closes match to known cards
   if (key == 'f'){
