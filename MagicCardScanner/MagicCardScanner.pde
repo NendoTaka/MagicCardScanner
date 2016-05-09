@@ -8,8 +8,6 @@ PImage card, borderCard, noBorder, display, centerPic, textBox, type, setSym, na
 String[] cardList = {"Ajani_Vengeant.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg"};
 //Ints used for cropping the image
 int startx = 0, starty = 0, endx = 0, endy = 0;
-int blackCount = 0;
-boolean cutOffmargin = false;
 
 void setup() {
   size(500, 500); // initial screen size
@@ -145,10 +143,10 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
   return cropped;
 }
 
-PImage blackPixelCount(PImage img)
+int blackPixelCount(PImage img, boolean cutOffMargin)
 {
   int pixCount = 0;
-  if(cutOffmargin == true)
+  if(cutOffMargin == true)
   {
       img = cropCard(img, int(img.width * 0.02), int(img.height* 0.05), int(img.width* 0.98), int(img.height*0.93));
   }
@@ -166,8 +164,7 @@ PImage blackPixelCount(PImage img)
      pixCount++; 
     }
   }
-  blackCount = pixCount;
-  return newImage;
+  return pixCount;
 }
 
 float avgPixel(PImage img)
@@ -213,7 +210,7 @@ void keyPressed(){
   // will be cropped smaller
   if (key =='b')
   {
-     display = blackPixelCount(display);
+     int blackCount = blackPixelCount(display, false);
      println(blackCount);
   }
   // display the original image
