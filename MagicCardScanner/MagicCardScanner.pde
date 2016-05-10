@@ -30,8 +30,38 @@ void draw() {
   }
 }
 
+//Takes data from the images and returns it
+//[CardColor(C),Name(B),Type(B),Description(B),Attack/Defense(B),Cost(A1),Set(A1),Image(A9)]
+float[] takeData(){
+  float[] result = new float[1];
+  result[0] = 0; // get card color
+  
+  float bName = blackPixelCount(name, false); // count black pixels of name
+  result = append(result, bName);
+  
+  float bType = blackPixelCount(type, false); // count black pixels of type
+  result = append(result, bType);
+  
+  float bDesc = blackPixelCount(textBox, false); // count black pixels of description
+  result = append(result, bDesc);
+  
+  float bAtt = blackPixelCount(damage, false); // count black pixels of attack and defense
+  result = append(result, bAtt);
+  
+  float[] aCost = sampleBoxes(cost, 1, 1); // color samples the cost
+  result = concat(result, aCost);
+  
+  float[] aSet = sampleBoxes(setSym, 1, 1); // color samples the set symbol
+  result = concat(result, aSet);
+  
+  float[] aImage = sampleBoxes(centerPic, 3, 3); // color samples the center image
+  result = concat(result, aImage);
+  
+  return result;
+}
+
 //Splits image into sections and calls functions to measure values
-float[] takeData(PImage imgSource, int n, int m){
+float[] sampleBoxes(PImage imgSource, int n, int m){
   int xDiff = imgSource.width / n; // width of each box
   int yDiff = imgSource.height / m; // height of each box
   float[] result = new float[n * m * 6]; // result array 6 = size of returned array from findColorValues
@@ -193,7 +223,7 @@ float avgPixel(PImage img)
 //Samples the card and appends the data to cards.txt
 void cardSample(){
   // gets the card data
-  float[] data = takeData(centerPic, 3, 3);
+  float[] data = takeData();
   String outArray = "["; // initialize output string
   for (int x = 0; x < data.length; x++){
     outArray += str(data[x]) + ","; // append array data to output string
@@ -234,7 +264,7 @@ void keyPressed(){
   }
   // finds the closes match to known cards
   if (key == 'f'){
-    float[] data = takeData(centerPic, 3, 3);
+    float[] data = takeData();
     readText();
   }
   // gets black pixel count by cropping a percentage border around the img passed in, converting the 
