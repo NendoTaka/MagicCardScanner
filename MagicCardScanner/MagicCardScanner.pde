@@ -175,18 +175,33 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
 
 
 void compareData(float[] data, String cardName){
-  // Declare an array of floats to store results of card-to-card comparisons
-  //
-  // Reads in a 2-D array of strings: ["[cardData]", "cardName"]
-  //
-  // For every sub-array in the main array:
-  //   Converts sub-array[0] representation of array into an array of floats, called otherCard.
-  //   Calls compareCards( data, otherCard ), stores the result in the results array.
-  //
-  // Iterate through the results array, finding the index of the smallest number.
-  //
-  // the card name at 2-D_StringArray[smallset_number_index, 1] is the closest match.
+  String[][] cardsStringData = readText();
+  int cardArraySize = split(cardsStringData[0][0], ',').length;
+  float[] cardFloatData = new float[cardArraySize];
+  String[] tempStringList = new String[cardArraySize];
+  float[] comparisonScores = new float[cardsStringData.length];
   
+  //Convert the string representation of a card into an array of floats
+  for(int i = 0; i < cardsStringData.length; i++){
+    tempStringList = split(cardsStringData[i][0], ',');
+    for(int j = 0; j < cardFloatData.length; j++){
+      cardFloatData[j] = float(tempStringList[j]);
+    }
+    comparisonScores[i] = compareCards(data, cardFloatData);
+  }
+  
+  
+  float minDifference = comparisonScores[0];
+  int minIndex = 0;
+  for(int i = 1; i < comparisonScores.length; i++){
+    if(comparisonScores[i] < minDifference){
+      minDifference = comparisonScores[i];
+      minIndex = i;
+    }
+  }
+  
+  print("The most similar card found was ", cardsStringData[minIndex][1]);
+  print("\nwhich had a difference measure of ", comparisonScores[minIndex], "\n\n");
 }
 
 float compareCards(float[] card1, float[] card2){
@@ -253,12 +268,12 @@ float avgPixel(PImage img)
 void cardSample(){
   // gets the card data
   float[] data = takeData();
-  String outArray = "["; // initialize output string
+  String outArray = ""; // initialize output string
   for (int x = 0; x < data.length; x++){
     outArray += str(data[x]) + ","; // append array data to output string
   }
   outArray = outArray.substring(0, outArray.length() - 1); // removes the last comma
-  outArray += "] " + cardList[2]; // adds the card name
+  outArray += " " + cardList[2]; // adds the card name
   outArray = outArray.substring(0, outArray.length() - 4); // removes the extension
   // opens and reads the current contents of cards.txt
   String lines[] = loadStrings("cards.txt");
