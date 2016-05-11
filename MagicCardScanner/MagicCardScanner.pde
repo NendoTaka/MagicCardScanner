@@ -233,7 +233,7 @@ float totalDiff = 0;
   //For comparisons between median and average color values,
   // Simply add the differences between the values to the totalDiff.
   for(int i = 5; i < card1.length; i++){
-    totalDiff += card1[i] - card2[i];
+    totalDiff += abs(card1[i] - card2[i]);
   }
   
   return totalDiff;
