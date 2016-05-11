@@ -6,13 +6,14 @@ Click and drag to select card. Click c to crop.
 PImage card, borderCard, noBorder, display, centerPic, textBox, type, setSym, name, cost, damage;
 //List of image files
 String[] cardList = {"Ajani_Vengeant.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg"};
+int currentCard = 1;
 //Ints used for cropping the image
 int startx = 0, starty = 0, endx = 0, endy = 0;
 
 void setup() {
   size(500, 500); // initial screen size
   surface.setResizable(true); // sets resizable screen
-  card = loadImage(cardList[2]); // loads the image
+  card = loadImage(cardList[currentCard]); // loads the image
   display = card; // sets initial display image
   surface.setSize(display.width, display.height); // resizes surface
   borderCard = card.copy(); // copies card to the borderless image for initial setup
@@ -188,8 +189,10 @@ void compareData(float[] data, String cardName){
       cardFloatData[j] = float(tempStringList[j]);
     }
     comparisonScores[i] = compareCards(data, cardFloatData);
+    print(cardsStringData[i][1], ": ", comparisonScores[i], "\n");
   }
   
+  print("\n");
   
   float minDifference = comparisonScores[0];
   int minIndex = 0;
@@ -216,10 +219,10 @@ float compareCards(float[] card1, float[] card2){
         [avgRed,avgGreen,avgBlue,medRed,medGreen,medBlue]
   */
   
-  float totalDiff = 0;
-  
+float totalDiff = 0;
+
   //If card colors do not match, add 10000 to total difference
-  if(card1[0] != card2[1]){
+  if(card1[0] != card2[0]){
     totalDiff += 10000;
   }
   //For comparisons between percentages of black pixels,
@@ -292,7 +295,7 @@ void cardSample(){
     outArray += str(data[x]) + ","; // append array data to output string
   }
   outArray = outArray.substring(0, outArray.length() - 1); // removes the last comma
-  outArray += " " + cardList[2]; // adds the card name
+  outArray += " " + cardList[currentCard]; // adds the card name
   outArray = outArray.substring(0, outArray.length() - 4); // removes the extension
   // opens and reads the current contents of cards.txt
   String lines[] = loadStrings("cards.txt");
@@ -328,13 +331,10 @@ void keyPressed(){
   }
   // finds the closes match to known cards
   if (key == 'f'){
-
-    
-
-float[] data = takeData();
-    readText();
+    float[] data = takeData();
     compareData(data, "data/cards.txt");
   }
+  
   // gets black pixel count by cropping a percentage border around the img passed in, converting the 
   // img to black and white and counting the number of black pixels. This will display the black and white image
   // and set the black pixel count to blackCount. Do NOT press the button more than once on an img or else the img
