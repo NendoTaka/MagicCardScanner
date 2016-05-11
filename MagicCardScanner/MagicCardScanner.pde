@@ -30,8 +30,38 @@ void draw() {
   }
 }
 
+//Takes data from the images and returns it
+//[CardColor(C),Name(B),Type(B),Description(B),Attack/Defense(B),Cost(A1),Set(A1),Image(A9)]
+float[] takeData(){
+  float[] result = new float[1];
+  result[0] = 0; // get card color
+  
+  float bName = blackPixelCount(name, false); // count black pixels of name
+  result = append(result, bName);
+  
+  float bType = blackPixelCount(type, false); // count black pixels of type
+  result = append(result, bType);
+  
+  float bDesc = blackPixelCount(textBox, false); // count black pixels of description
+  result = append(result, bDesc);
+  
+  float bAtt = blackPixelCount(damage, false); // count black pixels of attack and defense
+  result = append(result, bAtt);
+  
+  float[] aCost = sampleBoxes(cost, 1, 1); // color samples the cost
+  result = concat(result, aCost);
+  
+  float[] aSet = sampleBoxes(setSym, 1, 1); // color samples the set symbol
+  result = concat(result, aSet);
+  
+  float[] aImage = sampleBoxes(centerPic, 3, 3); // color samples the center image
+  result = concat(result, aImage);
+  
+  return result;
+}
+
 //Splits image into sections and calls functions to measure values
-float[] takeData(PImage imgSource, int n, int m){
+float[] sampleBoxes(PImage imgSource, int n, int m){
   int xDiff = imgSource.width / n; // width of each box
   int yDiff = imgSource.height / m; // height of each box
   float[] result = new float[n * m * 6]; // result array 6 = size of returned array from findColorValues
@@ -80,7 +110,7 @@ float[] findColorValues(PImage img, int startX, int startY, int endX, int endY){
     }
   }
   
-  // sort arrays of color values for medain
+  // sort arrays of color values for median
   redValues = sort(redValues);
   greenValues = sort(greenValues);
   blueValues = sort(blueValues);
@@ -143,6 +173,7 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
   return cropped;
 }
 
+
 void compareData(float[] data, String cardName){
   // Declare an array of floats to store results of card-to-card comparisons
   //
@@ -171,6 +202,73 @@ float compareCards(float[] card1, float[] card2){
   return result;
 }
 
+//reading info from text file
+String[][] readText(){
+  String[] data=loadStrings("cards.txt");
+  String[][] result = new String[data.length][2];
+  
+  for(int i = 0; i < data.length; i++){
+    result[i] = split(data[i], " ");
+  }
+  
+  return result;
+}
+
+float blackPixelCount(PImage img, boolean cutOffMargin)
+{
+  int pixCount = 0;
+  if(cutOffMargin == true)
+  {
+      img = cropCard(img, int(img.width * 0.02), int(img.height* 0.05), int(img.width* 0.98), int(img.height*0.93));
+  }
+  float thr = avgPixel(img);
+  PImage newImage = img.get();
+  newImage.loadPixels();
+  
+  for (int i = 0; i < newImage.pixels.length; i++) {
+    float val = int(red(newImage.pixels[i]));
+    if (val > thr) val = 255;
+    else val = 0;
+    newImage.pixels[i] = color(val, val, val);
+    if(val == 0)
+    {
+     pixCount++; 
+    }
+  }
+  float percentBlack = ((pixCount*1.0) / (img.width * img.height)) * 100;
+  return percentBlack;
+}
+
+float avgPixel(PImage img)
+{
+  float total = 0;
+  for (int i = 0; i < img.pixels.length; i++) {
+    total += red(img.pixels[i]);
+  }
+  float avg = total/img.pixels.length;
+  return avg;
+}
+
+//Samples the card and appends the data to cards.txt
+void cardSample(){
+  // gets the card data
+  float[] data = takeData();
+  String outArray = "["; // initialize output string
+  for (int x = 0; x < data.length; x++){
+    outArray += str(data[x]) + ","; // append array data to output string
+  }
+  outArray = outArray.substring(0, outArray.length() - 1); // removes the last comma
+  outArray += "] " + cardList[2]; // adds the card name
+  outArray = outArray.substring(0, outArray.length() - 4); // removes the extension
+  // opens and reads the current contents of cards.txt
+  String lines[] = loadStrings("cards.txt");
+  // appends the output string to the current contents
+  lines = append(lines, outArray);
+  //saves the strings to the file
+  saveStrings("data/cards.txt", lines);
+
+}
+
 void mousePressed(){
   // Starts card selection
   startx = mouseX;
@@ -192,12 +290,25 @@ void keyPressed(){
   }
   // samples the card saving the data to a file
   if (key == 's'){
-    float[] data = takeData(centerPic, 3, 3);
+    cardSample();
   }
   // finds the closes match to known cards
   if (key == 'f'){
-    float[] data = takeData(centerPic, 3, 3);
+
+    
+
+float[] data = takeData();
+    readText();
     compareData(data, "data/cards.txt");
+  }
+  // gets black pixel count by cropping a percentage border around the img passed in, converting the 
+  // img to black and white and counting the number of black pixels. This will display the black and white image
+  // and set the black pixel count to blackCount. Do NOT press the button more than once on an img or else the img
+  // will be cropped smaller
+  if (key =='b')
+  {
+     float blackCount = blackPixelCount(display, false);
+     println(blackCount);
   }
   // display the original image
   if (key == '1'){
