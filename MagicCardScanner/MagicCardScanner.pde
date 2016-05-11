@@ -205,16 +205,35 @@ void compareData(float[] data, String cardName){
 }
 
 float compareCards(float[] card1, float[] card2){
-  float result = 0;
+  /*
+    For reference, this is the format of the card arrays:
+    
+    Array = [CardColor(C),Name(B),Type(B),Description(B),Attack/Defense(B),Cost(A1),Set(A1),Image(A9)]
+    
+    C = Color [white,blue,black,red,green,gold,gray] (float 0-6 related to position in array)
+    B = Percent black (0-100 float % of area that is black/text)
+    Ax = Average and Median Colors (6 * x = number of spaces where x is number of squares) 
+        [avgRed,avgGreen,avgBlue,medRed,medGreen,medBlue]
+  */
   
-  // In the body of this function, compare the cards field by field and add the differences to result.
-  // Basically, use a for loop to do:
-  //   result += abs(card1[x] - card2[x]);
-  //
-  // Some of the indexes of the card arrays will need to be handled differently, though.
-  // More details will come when we know where those fields are, and how their differences should be measured.
+  float totalDiff = 0;
   
-  return result;
+  //If card colors do not match, add 10000 to total difference
+  if(card1[0] != card2[1]){
+    totalDiff += 10000;
+  }
+  //For comparisons between percentages of black pixels,
+  // add the square of their difference * 10 to the totalDiff.
+  for(int i = 1; i <= 4; i++){
+    totalDiff += pow(card1[i] - card2[i], 2) * 10;
+  }
+  //For comparisons between median and average color values,
+  // Simply add the differences between the values to the totalDiff.
+  for(int i = 5; i < card1.length; i++){
+    totalDiff += card1[i] - card2[i];
+  }
+  
+  return totalDiff;
 }
 
 //reading info from text file
