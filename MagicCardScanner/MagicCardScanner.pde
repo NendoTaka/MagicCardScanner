@@ -5,8 +5,8 @@ Click and drag to select card. Click c to crop.
 //Image variables
 PImage card, borderCard, noBorder, display, centerPic, textBox, type, setSym, name, cost, damage;
 //List of image files
-String[] cardList = {"Ajani_Vengeant.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg"};
-int currentCard = 1;
+String[] cardList = {"Ajani_Vengeant.jpg", "Back_from_the_Brink.jpg", "Other_Elgaud_Shieldmate.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg"};
+int currentCard = 2;
 //Ints used for cropping the image
 int startx = 0, starty = 0, endx = 0, endy = 0;
 
