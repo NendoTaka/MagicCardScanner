@@ -6,7 +6,7 @@ Click and drag to select card. Click c to crop.
 PImage card, borderCard, noBorder, display, centerPic, textBox, type, setSym, name, cost, damage;
 //List of image files
 String[] cardList = {"Sam_Sleeved_Castellan.jpg", "Sam_Unsleeved_Castellan.jpg", "Ajani_Vengeant.jpg", "Back_from_the_Brink.jpg", "Other_Elgaud_Shieldmate.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg", "Citadel_Castellan.jpg", "Valeron_Wardens.jpg", "Dromoka's_Command.jpg", "Managorger_Hydra.jpg", "Patron_of_the_Valiant.jpg", "Topan_Freeblade.jpg"};
-int currentCard = 0;
+int currentCard = 3;
 //Ints used for cropping the image
 int startx = 0, starty = 0, endx = 0, endy = 0;
 
@@ -35,7 +35,7 @@ void draw() {
 //[CardColor(C),Name(B),Type(B),Description(B),Attack/Defense(B),Cost(A1),Set(A1),Image(A9)]
 float[] takeData(){
   float[] result = new float[1];
-  result[0] = 0; // get card color
+  result[0] = CardColor(noBorder); // get card color
   
   float bName = blackPixelCount(name, false); // count black pixels of name
   result = append(result, bName);
@@ -139,6 +139,50 @@ float[] findColorValues(PImage img, int startX, int startY, int endX, int endY){
   return result;
 }
 
+float CardColor(PImage src){
+  //get the borderless image
+  
+  int wide = src.width; // gets the width of the borderless card
+  int tall = src.height; // get the height of the borderless card
+  
+  int x1 = int(wide*0.005); //to sample card color pixels
+  int x2 = int(wide*0.009);
+  
+  int y1 = int(tall* 0.085);
+  int y2 = int(tall* 0.25);
+  
+  float r = 0, g = 0, b = 0; // red green blue values
+  int count = 0;//to count the no of pixels
+  
+  //add the pixels to the respective colors
+  for (int y = y1; y <= y2; y++){
+    for (int x = x1; x <= x2; x++){
+      color c = src.get(x,y);
+      r += red(c); 
+      g += green(c);
+      b += blue(c);
+      count += 1;
+    }
+  }
+  
+  r = r/count; //average values
+  g = g/count;
+  b = b/count;
+  
+  float colorCode = 0;
+  
+  //conditions:
+  if (r > g + b){colorCode = 0;} //red
+  else if (g > 100 && g - r >= 20 && g - b >= 20){colorCode = 1;} //green
+  else if ( b - (r + g) < 50 && b - (r + g) > - 50 && b > 100 ){colorCode = 2;} //blue
+  else if ( r + g + b > 570 ){colorCode = 3;} //white
+  else if (r < 90 && g < 90 && b < 90 ){colorCode = 4;} //black 
+  else if (r > 140 && r < 255 && g > 130 && g < 230 && b < 130 && (r + g) > 180) {colorCode = 5;} //gold
+  else if (r > 100 && r < 170 && g > 100 && g < 170 && b > 100 && b < 170){colorCode = 6;} //gray
+  
+  return colorCode; 
+}
+
 //Isolates all of the parts of the card
 void cropAll(PImage cropSource){
   int wide = cropSource.width; // gets the width of the card
@@ -222,7 +266,7 @@ float compareCards(float[] card1, float[] card2){
         [avgRed,avgGreen,avgBlue,medRed,medGreen,medBlue]
   */
   
-float totalDiff = 0;
+  float totalDiff = 0;
 
   //If card colors do not match, add 10000 to total difference
   if(card1[0] != card2[0]){
