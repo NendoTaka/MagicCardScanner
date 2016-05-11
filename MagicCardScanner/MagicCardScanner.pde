@@ -5,14 +5,15 @@ Click and drag to select card. Click c to crop.
 //Image variables
 PImage card, borderCard, noBorder, display, centerPic, textBox, type, setSym, name, cost, damage;
 //List of image files
-String[] cardList = {"Ajani_Vengeant.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg"};
+String[] cardList = {"Sam_Sleeved_Castellan.jpg", "Sam_Unsleeved_Castellan.jpg", "Ajani_Vengeant.jpg", "Back_from_the_Brink.jpg", "Other_Elgaud_Shieldmate.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg", "Citadel_Castellan.jpg", "Valeron_Wardens.jpg", "Dromoka's_Command.jpg"};
+int currentCard = 0;
 //Ints used for cropping the image
 int startx = 0, starty = 0, endx = 0, endy = 0;
 
 void setup() {
   size(500, 500); // initial screen size
   surface.setResizable(true); // sets resizable screen
-  card = loadImage(cardList[2]); // loads the image
+  card = loadImage(cardList[currentCard]); // loads the image
   display = card; // sets initial display image
   surface.setSize(display.width, display.height); // resizes surface
   borderCard = card.copy(); // copies card to the borderless image for initial setup
@@ -173,6 +174,71 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
   return cropped;
 }
 
+
+void compareData(float[] data, String cardName){
+  String[][] cardsStringData = readText();
+  int cardArraySize = split(cardsStringData[0][0], ',').length;
+  float[] cardFloatData = new float[cardArraySize];
+  String[] tempStringList = new String[cardArraySize];
+  float[] comparisonScores = new float[cardsStringData.length];
+  
+  //Convert the string representation of a card into an array of floats
+  for(int i = 0; i < cardsStringData.length; i++){
+    tempStringList = split(cardsStringData[i][0], ',');
+    for(int j = 0; j < cardFloatData.length; j++){
+      cardFloatData[j] = float(tempStringList[j]);
+    }
+    comparisonScores[i] = compareCards(data, cardFloatData);
+    print(cardsStringData[i][1], ": ", comparisonScores[i], "\n");
+  }
+  
+  print("\n");
+  
+  float minDifference = comparisonScores[0];
+  int minIndex = 0;
+  for(int i = 1; i < comparisonScores.length; i++){
+    if(comparisonScores[i] < minDifference){
+      minDifference = comparisonScores[i];
+      minIndex = i;
+    }
+  }
+  
+  print("The most similar card found was ", cardsStringData[minIndex][1]);
+  print("\nwhich had a difference measure of ", comparisonScores[minIndex], "\n\n");
+}
+
+float compareCards(float[] card1, float[] card2){
+  /*
+    For reference, this is the format of the card arrays:
+    
+    Array = [CardColor(C),Name(B),Type(B),Description(B),Attack/Defense(B),Cost(A1),Set(A1),Image(A9)]
+    
+    C = Color [white,blue,black,red,green,gold,gray] (float 0-6 related to position in array)
+    B = Percent black (0-100 float % of area that is black/text)
+    Ax = Average and Median Colors (6 * x = number of spaces where x is number of squares) 
+        [avgRed,avgGreen,avgBlue,medRed,medGreen,medBlue]
+  */
+  
+float totalDiff = 0;
+
+  //If card colors do not match, add 10000 to total difference
+  if(card1[0] != card2[0]){
+    totalDiff += 10000;
+  }
+  //For comparisons between percentages of black pixels,
+  // add the square of their difference * 10 to the totalDiff.
+  for(int i = 1; i <= 4; i++){
+    totalDiff += pow(card1[i] - card2[i], 2) * 10;
+  }
+  //For comparisons between median and average color values,
+  // Simply add the differences between the values to the totalDiff.
+  for(int i = 5; i < card1.length; i++){
+    totalDiff += abs(card1[i] - card2[i]);
+  }
+  
+  return totalDiff;
+}
+
 //reading info from text file
 String[][] readText(){
   String[] data=loadStrings("cards.txt");
@@ -224,12 +290,12 @@ float avgPixel(PImage img)
 void cardSample(){
   // gets the card data
   float[] data = takeData();
-  String outArray = "["; // initialize output string
+  String outArray = ""; // initialize output string
   for (int x = 0; x < data.length; x++){
     outArray += str(data[x]) + ","; // append array data to output string
   }
   outArray = outArray.substring(0, outArray.length() - 1); // removes the last comma
-  outArray += "] " + cardList[2]; // adds the card name
+  outArray += " " + cardList[currentCard]; // adds the card name
   outArray = outArray.substring(0, outArray.length() - 4); // removes the extension
   // opens and reads the current contents of cards.txt
   String lines[] = loadStrings("cards.txt");
@@ -237,6 +303,7 @@ void cardSample(){
   lines = append(lines, outArray);
   //saves the strings to the file
   saveStrings("data/cards.txt", lines);
+
 }
 
 void mousePressed(){
@@ -265,8 +332,9 @@ void keyPressed(){
   // finds the closes match to known cards
   if (key == 'f'){
     float[] data = takeData();
-    readText();
+    compareData(data, "data/cards.txt");
   }
+  
   // gets black pixel count by cropping a percentage border around the img passed in, converting the 
   // img to black and white and counting the number of black pixels. This will display the black and white image
   // and set the black pixel count to blackCount. Do NOT press the button more than once on an img or else the img
