@@ -6,7 +6,7 @@ Click and drag to select card. Click c to crop.
 PImage card, borderCard, noBorder, display, centerPic, textBox, type, setSym, name, cost, damage;
 //List of image files
 String[] cardList = {"Sam_Sleeved_Castellan.jpg", "Sam_Unsleeved_Castellan.jpg", "Ajani_Vengeant.jpg", "Back_from_the_Brink.jpg", "Other_Elgaud_Shieldmate.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg", "Citadel_Castellan.jpg", "Valeron_Wardens.jpg", "Dromoka's_Command.jpg"};
-int currentCard = 0;
+int currentCard = 3;
 //Ints used for cropping the image
 int startx = 0, starty = 0, endx = 0, endy = 0;
 
@@ -164,6 +164,9 @@ void cropAll(PImage cropSource){
 //Function used to crop an image
 PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
   // the new image
+  if (sx - ex == 0 || sy - ey == 0){
+    return src;
+  }
   PImage cropped = new PImage(ex - sx, ey - sy, ARGB);
   // loops through the selected area and copies to new image
   for (int x = sx; x <= ex; x++){
@@ -321,7 +324,7 @@ void mouseReleased(){
 void keyPressed(){
   // crop the card
   if (key == 'c'){
-    borderCard = cropCard(card, startx, starty, endx, endy);
+    borderCard = cropCard(card, min(startx,endx), min(starty,endy), max(startx,endx), max(starty,endy));
     cropAll(borderCard);
     display = borderCard;
   }
@@ -333,16 +336,6 @@ void keyPressed(){
   if (key == 'f'){
     float[] data = takeData();
     compareData(data, "data/cards.txt");
-  }
-  
-  // gets black pixel count by cropping a percentage border around the img passed in, converting the 
-  // img to black and white and counting the number of black pixels. This will display the black and white image
-  // and set the black pixel count to blackCount. Do NOT press the button more than once on an img or else the img
-  // will be cropped smaller
-  if (key =='b')
-  {
-     float blackCount = blackPixelCount(display, false);
-     println(blackCount);
   }
   // display the original image
   if (key == '1'){
