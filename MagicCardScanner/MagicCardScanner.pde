@@ -1,9 +1,121 @@
-/*
-Click and drag to select card. Click c to crop.
+/*  
+  MagicCardScanner
+  
+  Programmed by:
+    Klayton Hawkins
+    Radeeb Bashir
+    Sam Bumgardner
+    Zachary Olson
+    TJ Wallis
+    
+  Created for CSC 545: Computer Speech, Music and Images
+    Final Project
+
+
+  This program processes images of cards from Magic: The Gathering
+  in a few different ways. It can...
+  
+    1)  Crop the base image down to a user-specified area, used to
+        remove any unwanted (any non-card) sections of the image.
+        
+    2)  Further crop (and display) a card image to a variety of useful 
+        sub-images, such as the borderless card, as well as the card's name, 
+        mana cost, card type, set symbol, body text, power and toughness, 
+        and the card art.
+        
+    3)  Inspect the pixels of the card's different sub-images to
+        create a sort of "image processing profile" of the card image.
+        This involves a series of steps:
+          
+          A)  It samples pixels just inside the border to determine
+              the card's overall color.
+          
+          B)  For the sub-images card name, card type, body text, and 
+              power and toughness it thresholds the image and 
+              finds the percentage of black pixels in that sub-image.
+              A small margin around the body text is further cropped 
+              during this step, to reduce any inconsistencies from the
+              border surrounding it.
+  
+          C)  For the sub-images mana cost, set symbol, and card art
+              it finds the mean and median red, green, and blue values
+              of all of the pixels in those areas (a total of 6 floating
+              point numbers). The card art section, being significantly 
+              larger than the other two, is first divided into 9 
+              subcomponents. Each subcomponent's mean and median r, g, and b
+              values are determined seperately.
+              
+    4)  Write the current card's "image processing profile" and name to a 
+        text file (cards.txt). The profile is entered as a series of 
+        comma-separated floating point numbers, which is followed by a 
+        single space, then the filename of the card that was processed 
+        (without its extension).
+        
+    5)  Compare the current card's "image processing profile" against all
+        of the entries stored in our text file (cards.txt). It computes
+        a total difference measure between the current card and each
+        card from the file, based on the differences between each
+        of the fields in their profiles. Each card's total difference
+        measure is printed, then the card with the lowest total difference
+        measure is selected to be the most similar.
+        
+
+  A complete list of the program's hotkeys and controls follows:
+    
+    Click and drag with the mouse to: 
+      select an area to crop down to. 
+      (Note: should only use this to remove extraneous, non-card 
+       parts of the main image)
+  
+    Press 'c' to:
+      crop the full image down to the mouse-selected area.
+    
+    Press 's' to: 
+      find the current card's "image processing profile" and append 
+      it to the end of the file "cards.txt".
+    
+    Press 'f' to:
+      find the current card's "image processing profile" and compare
+      it against all entries in "cards.txt", printing results and
+      most similar entry at the end.
+      (Note: This assumes that there is at least 1 entry in cards.txt,
+       and that there are no extraneous blank lines in the file. We 
+       cannot guarantee the program will work as expected if these 
+       requirements are not met.) 
+       
+    Press '1' to:
+      display the original image.
+      
+    Press '2' to:
+      display the user-cropped image.
+      
+    Press '3' to:
+      display the bordless card.
+      
+    Press '4' to:
+      display the card's center picture sub-image.
+      
+    Press '5' to:
+      display the body text sub-image.
+      
+    Press '6' to:
+      display the card type sub-image.
+      
+    Press '7' to:
+      display the set symbol sub-image.
+      
+    Press '8' to:
+      display the card name sub-image.
+      
+    Press '9' to:
+      display the mana cost sub-image.
+      
+    Press '0' to:
+      display the power and toughness sub-image.
 */
 
 //Image variables
-PImage card, borderCard, noBorder, display, centerPic, textBox, type, setSym, name, cost, damage;
+PImage card, borderCard, noBorder, display, centerPic, bodyText, type, setSym, name, cost, damage;
 //List of image files
 String[] cardList = {"Sam_Sleeved_Castellan.jpg", "Sam_Unsleeved_Castellan.jpg", "Ajani_Vengeant.jpg", "Back_from_the_Brink.jpg", "Other_Elgaud_Shieldmate.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg", "Citadel_Castellan.jpg", "Valeron_Wardens.jpg", "Dromoka's_Command.jpg", "Managorger_Hydra.jpg", "Patron_of_the_Valiant.jpg", "Topan_Freeblade.jpg"};
 int currentCard = 3;
@@ -43,7 +155,7 @@ float[] takeData(){
   float bType = blackPixelCount(type, false); // count black pixels of type
   result = append(result, bType);
   
-  float bDesc = blackPixelCount(textBox, false); // count black pixels of description
+  float bDesc = blackPixelCount(bodyText, true); // count black pixels of description
   result = append(result, bDesc);
   
   float bAtt = blackPixelCount(damage, false); // count black pixels of attack and defense
@@ -184,6 +296,7 @@ float CardColor(PImage src){
 }
 
 //Isolates all of the parts of the card
+// Note: Measurements for cropping were determined empirically.
 void cropAll(PImage cropSource){
   int wide = cropSource.width; // gets the width of the card
   int tall = cropSource.height; // get the height of the card
@@ -192,7 +305,7 @@ void cropAll(PImage cropSource){
   // gets the center picture
   centerPic = cropCard(cropSource, int(wide*0.08), int(2*wide*0.085), int(wide-wide*0.08), int(tall/2 + wide*0.075));
   // gets the description text
-  textBox = cropCard(cropSource, int(wide*0.072), int(tall*0.626), int(wide*0.92), int(tall*0.91));
+  bodyText = cropCard(cropSource, int(wide*0.072), int(tall*0.626), int(wide*0.92), int(tall*0.91));
   // gets the type of card
   type = cropCard(cropSource, int(wide*0.08),int(tall*0.56),int(wide*0.8),int(tall*0.626));
   // gets the set symbol
@@ -221,8 +334,9 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
   return cropped;
 }
 
-
-void compareData(float[] data, String cardName){
+//Function used to compare the current card against all others
+// Actual comparison handled inside of a helper funciton, compareCards()
+void compareData(float[] data){
   String[][] cardsStringData = readText();
   int cardArraySize = split(cardsStringData[0][0], ',').length;
   float[] cardFloatData = new float[cardArraySize];
@@ -254,6 +368,9 @@ void compareData(float[] data, String cardName){
   print("\nwhich had a difference measure of ", comparisonScores[minIndex], "\n\n");
 }
 
+
+//Calculates the total difference between two cards based on their
+//pixel statistics.
 float compareCards(float[] card1, float[] card2){
   /*
     For reference, this is the format of the card arrays:
@@ -273,9 +390,9 @@ float compareCards(float[] card1, float[] card2){
     totalDiff += 10000;
   }
   //For comparisons between percentages of black pixels,
-  // add the square of their difference * 10 to the totalDiff.
+  // add the square of their difference to the totalDiff.
   for(int i = 1; i <= 4; i++){
-    totalDiff += pow(card1[i] - card2[i], 2) * 10;
+    totalDiff += pow(card1[i] - card2[i], 2);
   }
   //For comparisons between median and average color values,
   // Simply add the differences between the values to the totalDiff.
@@ -285,6 +402,7 @@ float compareCards(float[] card1, float[] card2){
   
   return totalDiff;
 }
+
 
 //reading info from text file
 String[][] readText(){
@@ -298,6 +416,8 @@ String[][] readText(){
   return result;
 }
 
+//Thresholds the image and finds the percentage of black pixels.
+// If cutOffMargin is true, it does an extra small crop first.
 float blackPixelCount(PImage img, boolean cutOffMargin)
 {
   int pixCount = 0;
@@ -323,6 +443,7 @@ float blackPixelCount(PImage img, boolean cutOffMargin)
   return percentBlack;
 }
 
+// Helper function used in blackPixelCount.
 float avgPixel(PImage img)
 {
   float total = 0;
@@ -379,7 +500,7 @@ void keyPressed(){
   // finds the closes match to known cards
   if (key == 'f'){
     float[] data = takeData();
-    compareData(data, "data/cards.txt");
+    compareData(data);
   }
   // display the original image
   if (key == '1'){
@@ -397,11 +518,11 @@ void keyPressed(){
   if (key == '4'){
     display = centerPic;
   }
-  // display the description box
+  // display the body text
   if (key == '5'){
-    display = textBox;
+    display = bodyText;
   }
-  // display the type of card
+  // display the card type
   if (key == '6'){
     display = type;
   }
@@ -417,7 +538,7 @@ void keyPressed(){
   if (key == '9'){
     display = cost;
   }
-  // display the defense and attack of the card
+  // display the card's power and toughness
   if (key == '0'){
     display = damage;
   }
