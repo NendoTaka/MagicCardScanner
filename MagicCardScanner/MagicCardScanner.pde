@@ -275,7 +275,7 @@ float compareCards(float[] card1, float[] card2){
   //For comparisons between percentages of black pixels,
   // add the square of their difference * 10 to the totalDiff.
   for(int i = 1; i <= 4; i++){
-    totalDiff += pow(card1[i] - card2[i], 2) * 10;
+    totalDiff += pow(card1[i] - card2[i], 2);
   }
   //For comparisons between median and average color values,
   // Simply add the differences between the values to the totalDiff.
