@@ -43,7 +43,7 @@ float[] takeData(){
   float bType = blackPixelCount(type, false); // count black pixels of type
   result = append(result, bType);
   
-  float bDesc = blackPixelCount(textBox, false); // count black pixels of description
+  float bDesc = blackPixelCount(textBox, true); // count black pixels of description
   result = append(result, bDesc);
   
   float bAtt = blackPixelCount(damage, false); // count black pixels of attack and defense
