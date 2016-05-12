@@ -500,7 +500,7 @@ void keyPressed(){
   // finds the closes match to known cards
   if (key == 'f'){
     float[] data = takeData();
-    compareData(data, "data/cards.txt");
+    compareData(data);
   }
   // display the original image
   if (key == '1'){
