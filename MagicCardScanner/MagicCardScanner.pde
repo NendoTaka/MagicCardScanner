@@ -115,7 +115,7 @@
 */
 
 //Image variables
-PImage card, borderCard, noBorder, display, centerPic, textBox, type, setSym, name, cost, damage;
+PImage card, borderCard, noBorder, display, centerPic, bodyText, type, setSym, name, cost, damage;
 //List of image files
 String[] cardList = {"Sam_Sleeved_Castellan.jpg", "Sam_Unsleeved_Castellan.jpg", "Ajani_Vengeant.jpg", "Back_from_the_Brink.jpg", "Other_Elgaud_Shieldmate.jpg", "Elgaud_Shieldmate.jpg", "Fiendslayer_Paladin.jpg", "Karn_Liberated.jpg", "Scoria_Elemental.jpg", "Citadel_Castellan.jpg", "Valeron_Wardens.jpg", "Dromoka's_Command.jpg", "Managorger_Hydra.jpg", "Patron_of_the_Valiant.jpg", "Topan_Freeblade.jpg"};
 int currentCard = 3;
@@ -155,7 +155,7 @@ float[] takeData(){
   float bType = blackPixelCount(type, false); // count black pixels of type
   result = append(result, bType);
   
-  float bDesc = blackPixelCount(textBox, true); // count black pixels of description
+  float bDesc = blackPixelCount(bodyText, true); // count black pixels of description
   result = append(result, bDesc);
   
   float bAtt = blackPixelCount(damage, false); // count black pixels of attack and defense
@@ -296,6 +296,7 @@ float CardColor(PImage src){
 }
 
 //Isolates all of the parts of the card
+// Note: Measurements for cropping were determined empirically.
 void cropAll(PImage cropSource){
   int wide = cropSource.width; // gets the width of the card
   int tall = cropSource.height; // get the height of the card
@@ -304,7 +305,7 @@ void cropAll(PImage cropSource){
   // gets the center picture
   centerPic = cropCard(cropSource, int(wide*0.08), int(2*wide*0.085), int(wide-wide*0.08), int(tall/2 + wide*0.075));
   // gets the description text
-  textBox = cropCard(cropSource, int(wide*0.072), int(tall*0.626), int(wide*0.92), int(tall*0.91));
+  bodyText = cropCard(cropSource, int(wide*0.072), int(tall*0.626), int(wide*0.92), int(tall*0.91));
   // gets the type of card
   type = cropCard(cropSource, int(wide*0.08),int(tall*0.56),int(wide*0.8),int(tall*0.626));
   // gets the set symbol
@@ -333,8 +334,9 @@ PImage cropCard(PImage src, int sx, int sy, int ex, int ey){
   return cropped;
 }
 
-
-void compareData(float[] data, String cardName){
+//Function used to compare the current card against all others
+// Actual comparison handled inside of a helper funciton, compareCards()
+void compareData(float[] data){
   String[][] cardsStringData = readText();
   int cardArraySize = split(cardsStringData[0][0], ',').length;
   float[] cardFloatData = new float[cardArraySize];
@@ -366,6 +368,9 @@ void compareData(float[] data, String cardName){
   print("\nwhich had a difference measure of ", comparisonScores[minIndex], "\n\n");
 }
 
+
+//Calculates the total difference between two cards based on their
+//pixel statistics.
 float compareCards(float[] card1, float[] card2){
   /*
     For reference, this is the format of the card arrays:
@@ -398,6 +403,7 @@ float compareCards(float[] card1, float[] card2){
   return totalDiff;
 }
 
+
 //reading info from text file
 String[][] readText(){
   String[] data=loadStrings("cards.txt");
@@ -410,6 +416,8 @@ String[][] readText(){
   return result;
 }
 
+//Thresholds the image and finds the percentage of black pixels.
+// If cutOffMargin is true, it does an extra small crop first.
 float blackPixelCount(PImage img, boolean cutOffMargin)
 {
   int pixCount = 0;
@@ -435,6 +443,7 @@ float blackPixelCount(PImage img, boolean cutOffMargin)
   return percentBlack;
 }
 
+// Helper function used in blackPixelCount.
 float avgPixel(PImage img)
 {
   float total = 0;
@@ -509,11 +518,11 @@ void keyPressed(){
   if (key == '4'){
     display = centerPic;
   }
-  // display the description box
+  // display the body text
   if (key == '5'){
-    display = textBox;
+    display = bodyText;
   }
-  // display the type of card
+  // display the card type
   if (key == '6'){
     display = type;
   }
@@ -529,7 +538,7 @@ void keyPressed(){
   if (key == '9'){
     display = cost;
   }
-  // display the defense and attack of the card
+  // display the card's power and toughness
   if (key == '0'){
     display = damage;
   }
